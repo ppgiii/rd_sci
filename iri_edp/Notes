@@ -4,6 +4,12 @@
 
 "assess1" is the default name of the executable, this can be renamed in the Makefile.
 
+"cassess1.c" is the C wrapper.
+
 gnu1 & gnu2 are the plots of the plasma frequency versus height.
 
 "assessiri" is the data file containing the values of frequency and height.  Use to verify data integrity from assess1 and "fort.7" (the default iritest.for output).
+
+"iritest.for" & "irisub.for" have been edited to work with the C wrapper.
+
+All other files are default files taken from irimodel.org.
