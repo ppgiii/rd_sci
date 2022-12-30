@@ -1,6 +1,7 @@
 # rd_sci
 
-uploaded "Assessment: perform cluster"  
-file: rd_sci_clustering.ipynb  
-  
+Temporal relationship: median filters
+  file: 
+Cluster of data sets
+  file: rd_sci_clustering.ipynb  
   
