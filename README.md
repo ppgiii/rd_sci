@@ -9,8 +9,9 @@
   * file: median_filter.c  
   * compile with any C compiler, compatible with any C standards  
   * GNU Plot required, see gnuplot.info  
-  * plots: filtered-hmf2 (png file)  
-    (&emsp)     filtered-foF2 (png file)  
+  * plots: 
+         filtered-hmf2 (png file)  
+         filtered-foF2 (png file)  
   
 * Cluster of data sets  
   * file: rd_sci_clustering.ipynb  
