@@ -9,7 +9,7 @@
   * file: median_filter.c  
   * compile with any C compiler, compatible with any C standards  
   * GNU Plot required, see gnuplot.info  
-  * plots: 
+  * plots:  
          filtered-hmf2 (png file)  
          filtered-foF2 (png file)  
   
