@@ -107,6 +107,20 @@ int filterPlot(float dat[], float ftr[], int end, char *title) {
 Function: medianFilter
           computes a median filter using one dimensional method
           plots the unfiltered data against the filtered data
+          based on: https://en.wikipedia.org/wiki/Median_filter
+
+          For the one dimensional filter, starting with an input array:
+            A[] = {7,8,2,1,3,6,5,7,4}   : dat[] -corresponding var in function
+            window size = 3             : window_width
+                                        : standard min default
+            X[] = med(7,8,2)            : outputPixelValue -corresponding var in function
+            qsort(2,7,8)
+            X[] = {7}                   : continue for all length of array
+
+          Boundary conditions:
+            first index                 : edge -corresponding var in function
+                                        : min value
+            total array length          : end -corresponding var in function
 
 return: int
 */
