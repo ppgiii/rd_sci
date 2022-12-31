@@ -7,8 +7,9 @@
   
 * Temporal relationship: median filters  
   * file: median_filter.c  
-  * compile with any C compiler, compatible with any C standards  
   * GNU Plot required, see gnuplot.info  
+  * compile with any C compiler, compatible with any C standards  
+  * to execute in Windows:> .\median_filter.exe <input filename>
   * plots:  
          filtered-hmf2 (png file)  
          filtered-foF2 (png file)  
