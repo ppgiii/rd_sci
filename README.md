@@ -3,7 +3,7 @@
 * iri_edp  
   * directory containing FORTRAN code and data for the iri2016 algorithm (see irimodel.org)  
   * GNU Plot required, see gnuplot.info  
-  * FORTRAN compiler & C compiler required - see README within  
+  * FORTRAN compiler & C compiler required - see NOTES & pdf file within  
   
 * Temporal relationship: median filters  
   * file: median_filter.c  
