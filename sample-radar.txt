@@ -1,0 +1,2 @@
+Initial coordinates (latitude, longitude), range (km), bearing (degrees)
+37N, 75W, 2288.66, 154.96
