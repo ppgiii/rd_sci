@@ -2,11 +2,21 @@
     Geometric distance program that converts GIS coordinates (latitude & longitude) 
     to radar coordinates (range & bearing) and vice versa.
 
+    The program uses an input file to get the coordinates (GIS or radar) and command line options from 
+    the user to determine which conversion to use.  Based on the option, the logic will direct to an interface 
+    for conversion.  Each conversion computes the radian and pass the inputs to 3 formulas:
+    range (Haversine), bearing, GIS coordinates (latitude, longitude) for final location. 
+
+    It uses struct data type to hold the coordinate values in float, single precision since it is
+    not necessary for detailed numbers for this exercise.  The GIS format is only in degrees for simplicity
+    but the module can be extended to allow parsing for other formats.  File input is used since this program
+    is a command line implementation and useful for expansion if necessary.
+
     The distance formula is taken from a web site that uses the Haversine equation to calculate the 
     range and bearing.  There are some simplifications and assumptions made for this program as stated in
     the web site.  For the bearing, only current bearing is considered.
 
-    The input is a file but the function can be modified or extended to add other methods of input.
+    The input is a file but the module can be modified or extended to add other methods of input.
     The input file only has 2 lines, header and data, comma separated (can be modified).  The header 
     identifies what the data structure looks like.  No other checks or error traps are used.
     For both types of file, the first two data are starting coordinates in latitude and longitude.  
@@ -17,19 +27,18 @@
         where N represents N, E, W, or S
         the first two for the starting coordinates, the last two for ending coordinates
     For radar coordinates, the data line format: xxxN, xxxN, yyy.yy, yyy.yy
-        the first two for the starting coordinates, the last two:
+        the first two for the starting GIS coordinates, the last two:
             yyy.yy: range in km
             yyy.yy: bearing in degrees, 0-360
 
     The conversion assumes that the starting coordinates is always in GIS format.  This format only uses
-    degrees but the function can be modified or extended to handle minutes/seconds.
+    degrees but the function can be modified or extended to handle minutes/seconds, etc.
 
     The user is asked to use options to determine which conversion to use:
         -G : conversion from GIS coordinates to radar coordinates
         -R : conversion from radar coordinates to GIS coordinates
 
-    All variables using float since single precision is enough for this exercise.
-    Parameter inputs set to call by value to avoid modifications of originals unless set to call by reference.
+    Parameter inputs by default call by value to avoid modifications of originals unless set to call by reference.
     Degrees measured from true north and coordinates are in whole degrees only.
 
     To use:
