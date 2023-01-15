@@ -1,0 +1,2 @@
+Initial coordinates (latitude, longitude), Final coordinates (latitude, longitude)
+37N, 75W, 18N, 66W
