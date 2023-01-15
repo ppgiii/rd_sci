@@ -66,7 +66,7 @@
 #define CSV ", "                // define the format for file reading - must inspect file for delimeter useage
 #define COORD 8                 // degrees only (0-360 value) plus direction (N, E, W, S)
                                 // for radar, it combines range of yyyy.yy and bearing yyy.yy, max digits
-                                // with null
+                                // with null terminator
 #define READ_BUF 1024           // read buffer size, default = 1024
 #define FILE_NAME_LEN 256       // standard file name length
 #define EARTH_RADIUS 6371       // mean Earth radius, simplified, in km
@@ -121,7 +121,7 @@ float haversine(float lat_start, float lon_start, float lat_dest, float lon_dest
 /*  bearing
     This formula is taken from https://www.movable-type.co.uk/scripts/latlong.html
     Simplified computation using current heading to find the bearing in degrees.
-    The initial GIS coordinates in decimal form is used converted to radians.
+    The initial GIS coordinates in decimal form is used to convert to radians.
 
     Input:  lat_start, lon_start    - starting coordinates in latitude/longitude in radians
             lat_dest, lon_dest      - destination coordinates in latitude/longitude in radians
@@ -290,7 +290,8 @@ void RtoG(struct geographic init_gis, struct head radar) {
     By convention, south (S) and west (W) are negative in decimal notation.
 
     Input:  geographic coordinates
-    Output: None
+    Output: value - negative for coordinates in south (S) or west (W)
+                  - positive for coordinates in north (N) or east (E)
 */
 float news(char *coord) {
     // set to default: no sign
@@ -329,7 +330,7 @@ float news(char *coord) {
             i_lat, i_lon: starting latitude/longitude
             coord_a, coord_b: next 2 inputs based on the type of conversion
                     for GIS to radar: the final latitude/longitude coordinates
-                    for radar to GIS: bearing (coord_a) & range (coord_b) data
+                    for radar to GIS: range (coord_a) & bearing (coord_b) data
     Output: None
 */
 void coordUtility(int command_stat, char *i_lat, char *i_lon, char *coord_a, char *coord_b) {
