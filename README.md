@@ -7,6 +7,7 @@
   
 * Temporal relationship: median filters  
   * file: median_filter.c  
+  * Calculating the median filter for time series data.  
   * GNU Plot required, see gnuplot.info  
   * compile with any C compiler, compatible from C99 standards  
   * to execute in Windows:> .\median_filter.exe \<input filename\>
@@ -16,6 +17,7 @@
   
 * Cluster of data sets  
   * file: rd_sci_clustering.ipynb  
+  * Clustering algorithm using K-means.  
   * to implement, load in a Jupyter notebook  
   
 * Coordinate Transformation  
