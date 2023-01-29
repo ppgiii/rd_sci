@@ -14,9 +14,10 @@ LIB = iri
 OBJ = irisub.o irifun.o iriflip.o iridreg.o iritec.o cira.o igrf.o
 UOBJ = cassess1.o iritest.o
 F77 = gfortran -std=legacy
-CC = gcc		# using C compiler explicitly
+# using C compiler explicitly
+CC = gcc
 
-all: assess1 libiri.a
+all: assess1 libiri.so
 
 assess1: $(UOBJ)
 	$(CC) -o assess1 $(UOBJ) -L$(LPATH) -l$(LIB) -lgfortran
@@ -27,8 +28,8 @@ cassess1.o: cassess1.c
 iritest.o: iritest.for
 	$(F77) -c iritest.for
 
-libiri.a: $(OBJ)
-	ar r libiri.a $(OBJ)
+libiri.so: $(OBJ)
+	gfortran -fPIC -shared -o libiri.so $(OBJ)
 
 irisub.o: irisub.for
 	$(F77) -c irisub.for
