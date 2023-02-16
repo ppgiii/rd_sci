@@ -44,6 +44,10 @@
     To use:
     geom_dist <option> <input file>
 
+    environment:
+    Windows OS
+    gcc.exe (Rev10, Built by MSYS2 project) 11.2.0
+
     Sample input file 1, using option -G, GIS (latitude, longitude) to radar (range, bearing) coordinates:
         Initial coordinates (latitude, longitude), Final coordinates (latitude, longitude)
         37N, 75W, 18N, 66W
@@ -64,6 +68,11 @@
         with a range of                         2288.66 kilometers 
         and a bearing of                        154.96 degrees.
         The final coordinates are               18N and 66W.
+
+    Compilation sample command:
+    gcc -c .\geom_dist.c -o .\geom_dist
+    .\geom_dist -G .\sample-gis.txt
+    .\geom_dist -R .\sample-radar.txt
 */
 #include <stdio.h>
 #include <string.h>
@@ -79,21 +88,21 @@
 #define READ_BUF 1024           // read buffer size, default = 1024
 #define FILE_NAME_LEN 256       // standard file name length
 #define EARTH_RADIUS 6371       // mean Earth radius, simplified, in km
-#define CONVR 1                 // conversion, here between km to meters, default is km
+#define CONVR 1                 // conversion between km to meters, default is km
 
 const char *clArgs = "G:R";     // command line options
 
-struct geographic {
-	float lat;
-	float lon;
+struct _geographic {
+	float lat;          // latitude
+	float lon;          // longitude
 };
 
-struct head {
+struct _head {
 	float bearing;
 	float range;
 };
 // assigning unity or negation based on convention used for geographic coordinates
-enum direction {
+enum _direction {
     N = 1, E = 1, W = -1, S = -1
 };
 
@@ -104,9 +113,9 @@ enum direction {
 
     Input:  lat_start, lon_start    - starting coordinates in latitude/longitude in radians
             lat_dest, lon_dest      - destination coordinates in latitude/longitude in radians
-    Output: distance in km
+    Output: distance in km by default, CONVR for other units, i.e. meters
 */
-float haversine(float lat_start, float lon_start, float lat_dest, float lon_dest) {
+float haversine(const float lat_start, const float lon_start, const float lat_dest, const float lon_dest) {
     /* Haversine formula:
                         a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
                         c = 2 ⋅ atan2( √a, √(1−a) )
@@ -136,7 +145,7 @@ float haversine(float lat_start, float lon_start, float lat_dest, float lon_dest
             lat_dest, lon_dest      - destination coordinates in latitude/longitude in radians
     Output: bearing in degrees
 */
-float bearing(float lat_start, float lon_start, float lat_dest, float lon_dest) {
+float bearing(const float lat_start, const float lon_start, const float lat_dest, const float lon_dest) {
     /*  Formula:	
                 θ = atan2( sin Δλ ⋅ cos φ2 , cos φ1 ⋅ sin φ2 − sin φ1 ⋅ cos φ2 ⋅ cos Δλ )
                 where	φ1,λ1 is the start point, φ2,λ2 the end point (Δλ is the difference in longitude)
@@ -150,8 +159,31 @@ float bearing(float lat_start, float lon_start, float lat_dest, float lon_dest) 
     return fmod((theta*180./M_PI) + 360., 360.);     // degrees - floating point modulu for extra sig figs
 }
 
+/*
+    displayGIS2Radar
+    Displays to std output from converting initial to final GIS coordinates to current range & bearing.
+    By modularizing this way, this output can be replaced without affecting the rest of the code.
+
+    Input:  lat, lon - initial GIS coordinates
+            range, bearing - calculated result
+    Output: None
+*/
+void displayGIS2Radar(struct _geographic init_gis, struct _geographic final_gis, struct _head radar) {
+    printf("\n");
+    // default output to std out, can be modified per user requirements
+    printf("The range in decimal coordinates between the \n\t\tstarting coordinates %3.0f latitude and %3.0f longitude\n", init_gis.lat, init_gis.lon);
+    printf("and \t\tfinal coordinates %3.0f latitude and %3.0f longitude\n", final_gis.lat, final_gis.lon);
+
+    // get range
+    printf("is \t\t%.2f kilometers \n", radar.range );
+
+    // get bearing
+    printf("with a \t\tbearing of %.2f degrees.\n", radar.bearing);
+
+    printf("\n");
+}
+
 /*  GIS2Radar
-    {For this exercise, this utility will print the converted values to std out.}
     This function converts the decimal input initial GIS coordinates & final GIS coordinates
     into range & bearing.
 
@@ -160,33 +192,23 @@ float bearing(float lat_start, float lon_start, float lat_dest, float lon_dest) 
     Input:  decimal form
             init_gis: struct type- initial GIS coordinates
             final_gis: struct type- final GIS coordinates
-    Output: None
+    Output: radar:  calculated range & bearing
+    Return: None
 */
-void GIS2Radar(struct geographic init_gis, struct geographic final_gis) {
-    // convert to radians
+void GIS2Radar(struct _geographic init_gis, struct _geographic final_gis, struct _head radar) {
+    // convert to radians for calculations
     float lat = init_gis.lat * (M_PI/180.);
     float lon = init_gis.lon * (M_PI/180.);
     float lat_dest = final_gis.lat * (M_PI/180.);
     float lon_dest = final_gis.lon * (M_PI/180.);
-
-    printf("\n");
-    // default output to std out, can be modified per user requirements
-    printf("The range in decimal coordinates between the \n\t\tstarting coordinates %3.0f latitude and %3.0f longitude\n", init_gis.lat, init_gis.lon);
-    printf("and \t\tfinal coordinates %3.0f latitude and %3.0f longitude\n", final_gis.lat, final_gis.lon);
-
-    // get range
-    printf("is \t\t%.2f kilometers \n", haversine(lat, lon, lat_dest, lon_dest) );
-
-    // get bearing
-    printf("with a \t\tbearing of %.2f degrees.\n", bearing(lat, lon, lat_dest, lon_dest) );
-
-    printf("\n");
+    radar.range = haversine(lat, lon, lat_dest, lon_dest);
+    radar.bearing = bearing(lat, lon, lat_dest, lon_dest);
 }
 
 /*  strCoord
     Changing the value into a string for std out.
 
-    Input:  coord - coordinates in degrees
+    Input:  coord - coordinates in degrees, modified within function
     Output: str - coordinates in string format, modifying negative into south or west
 */
 int strCoord(float coord, char *str) {
@@ -220,7 +242,7 @@ int strCoord(float coord, char *str) {
             lat_fin, lon_fin - final GIS coordinates
     Output: None
 */
-void displayCoord(struct geographic init_gis, struct head radar, float lat_fin, float lon_fin) {
+void displayCoord(struct _geographic init_gis, struct _head radar, struct _geographic final_gis) {
     // convert decimal direction to str
     char str[] = "\0";
 
@@ -229,11 +251,11 @@ void displayCoord(struct geographic init_gis, struct head radar, float lat_fin, 
     printf("with a range of \t\t\t%.2f kilometers \n", radar.range);
     printf("and a bearing of \t\t\t%.2f degrees.\n", radar.bearing);
 
-    if (strCoord(lat_fin, str)>0) { strcat(str, "N"); }
-    else                          { strcat(str, "S"); }
+    if (strCoord(final_gis.lat, str)>0) { strcat(str, "N"); }
+    else                                { strcat(str, "S"); }
     printf("The final coordinates are \t\t%s ", str);
-    if (strCoord(lon_fin, str)>0) { strcat(str, "E"); }
-    else                          { strcat(str, "W"); }
+    if (strCoord(final_gis.lon, str)>0) { strcat(str, "E"); }
+    else                                { strcat(str, "W"); }
     printf("and %s.\n", str);
     printf("\n");
 }
@@ -248,7 +270,7 @@ void displayCoord(struct geographic init_gis, struct head radar, float lat_fin, 
             range, bearing - given radar coordinates
     Output: lat_fin, lon_fin
 */
-void finalCoord(float lat, float lon, float range, float bearing, float *lat_fin, float *lon_fin) {
+void finalCoord(const float lat, const float lon, const float range, const float bearing, struct _geographic final_gis) {
     /*  Formula:	φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
                     λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
                     where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), 
@@ -259,13 +281,15 @@ void finalCoord(float lat, float lon, float range, float bearing, float *lat_fin
     */
     float R = EARTH_RADIUS * CONVR;              // allow placeholder to convert to other measurement
     float delta = range/R;
-    *lat_fin = asin(sin(lat)*cos(delta) + cos(lat)*sin(delta)*cos(bearing));
+    float lat_fin = asin(sin(lat)*cos(delta) + cos(lat)*sin(delta)*cos(bearing));
     float x = sin(bearing)*sin(delta)*cos(lat);
-    float y = cos(delta)-sin(lat)*sin(*lat_fin);
-    *lon_fin = lon + atan2(x,y);
+    float y = cos(delta)-sin(lat)*sin(lat_fin);
+    float lon_fin = lon + atan2(x,y);
     // convert to degrees for final output
-    *lat_fin = *lat_fin * 180./M_PI;
-    *lon_fin = fmod((*lon_fin * 180./M_PI)+540, 360.) - 180.;
+    lat_fin = lat_fin * 180./M_PI;
+    lon_fin = fmod((lon_fin * 180./M_PI)+540, 360.) - 180.;
+    final_gis.lat = lat_fin;
+    final_gis.lon = lon_fin;
 }
 
 /*  RtoG
@@ -277,18 +301,15 @@ void finalCoord(float lat, float lon, float range, float bearing, float *lat_fin
 
     Input:  init_gis - struct type for initial GIS coordinates
             radar    - struct type for range & bearing coordinates
-    Output: None
+    Output: final_gis - calculated final GIS coordinates
+    Return: None
 */
-void RtoG(struct geographic init_gis, struct head radar) {
+void RtoG(struct _geographic init_gis, struct _head radar, struct _geographic final_gis) {
     // convert to radians
     float lat = init_gis.lat * (M_PI/180.);
     float lon = init_gis.lon * (M_PI/180.);
     float bearing = radar.bearing * (M_PI/180.);
-
-    // local variables for passing to functions
-    float lat_final; float lon_final;
-    finalCoord(lat, lon, radar.range, bearing, &lat_final, &lon_final);
-    displayCoord(init_gis, radar, lat_final, lon_final);
+    finalCoord(lat, lon, radar.range, bearing, final_gis);
 }
 
 /*  news
@@ -304,7 +325,7 @@ void RtoG(struct geographic init_gis, struct head radar) {
 */
 float news(char *coord) {
     // set to default: no sign
-    enum direction d;
+    enum _direction d;
     d = N;
     float value = d;        // type casting
 
@@ -343,28 +364,35 @@ float news(char *coord) {
     Output: None
 */
 void coordUtility(int command_stat, char *i_lat, char *i_lon, char *coord_a, char *coord_b) {
-
+    struct _geographic init_gis; struct _geographic final_gis; struct _head radar;
     switch (command_stat) {
         case 1:
-                struct geographic init_gis, final_gis;
                 init_gis.lat = news(i_lat);
                 init_gis.lon = news(i_lon);
                 final_gis.lat = news(coord_a);
                 final_gis.lon = news(coord_b);
                 // call converter
-                GIS2Radar(init_gis, final_gis);
+                GIS2Radar(init_gis, final_gis, radar);
+                // default output to std out, can be modified per user requirements
+                displayGIS2Radar(init_gis, final_gis, radar);
                 break;
-        case 2:
-                struct geographic start_gis;
-                struct head radar;
-                start_gis.lat = news(i_lat);
-                start_gis.lon = news(i_lon);
+        case 2:                
+                init_gis.lat = news(i_lat);
+                init_gis.lon = news(i_lon);
                 radar.range = atof(coord_a);
                 radar.bearing = atof(coord_b);
                 // call converter
-                RtoG(start_gis, radar);
+                RtoG(init_gis, radar, final_gis);
+                // default output to std out, can be modified per user requirements
+                displayCoord(init_gis, radar, final_gis);
                 break;
-        default:
+        default: // set to 0 if nothing is calculated
+                init_gis.lat = 0.;
+                init_gis.lon = 0.;
+                final_gis.lat = 0.;
+                final_gis.lon = 0.;
+                radar.range = 0.;
+                radar.bearing = 0.;
                 break;
     }
 
@@ -486,7 +514,6 @@ int main(int argc, char *argv[]) {
         readInputFile(argv, i_lat, i_lon, coord_a, coord_b);
         coordUtility(command_stat, i_lat, i_lon, coord_a, coord_b);
     }
-    // else: any error check or message
 
     return 0;
 }
